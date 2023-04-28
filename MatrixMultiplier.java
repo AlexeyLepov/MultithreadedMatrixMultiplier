@@ -14,21 +14,20 @@ public class MatrixMultiplier
     //    main method    //
     //                   //
     ///////////////////////
-    public static void main(String[] args)
+    public static void main(String[] args)throws IOException
     {
-        // read matrix A from file
+        // Read matrices from a file
         int[][] matrixA = readMatrixFromFile("matrix_A.txt");
-        // read matrix B from file
         int[][] matrixB = readMatrixFromFile("matrix_B.txt");
-        // check if matrices have same dimensions
-        if (matrixA[0].length != matrixB.length)
+        // check the condition of matrix multiplicity
+        if (matrixA[0].length != matrixB.length && matrixB[0].length != matrixA.length)
         {
             System.out.println("Matrices have different dimensions and cannot be multiplied.");
             return;
         }
         // create a thread pool
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        // create matrix C
+        // create matrix C       
         int[][] matrixC = new int[matrixA.length][matrixB[0].length];
         // multiply matrices using threading
         for (int i = 0; i < matrixA.length; i++)
@@ -52,33 +51,32 @@ public class MatrixMultiplier
     //    reading a matrix from file and returning it as a 2D array of integers    //
     //                                                                             //
     /////////////////////////////////////////////////////////////////////////////////
-    public static int[][] readMatrixFromFile(String fileName)
+    public static int[][] readMatrixFromFile(String fileName) throws IOException
     {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName)))
-        {
-            String line;
-            int rowCount = 0;
-            int[][] matrix = null;
-            while ((line = reader.readLine()) != null)
-            {
-                String[] values = line.split(" ");
-                if (matrix == null)
-                {
-                    matrix = new int[values.length][];
-                }
-                matrix[rowCount] = new int[values.length];
-                for (int i = 0; i < values.length; i++)
-                {
-                    matrix[rowCount][i] = Integer.parseInt(values[i]);
-                }
-                rowCount++;
-            }
-            return matrix;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        String line = reader.readLine(); // read first line
+        String[] parts = line.split(" "); // split by spaces
+        int numRows = 1; // we already read the first row
+        int numCols = parts.length;
+        while ((line = reader.readLine()) != null) {
+            numRows++;
         }
-    }
+        reader.close(); // close the file
+
+        int[][] matrix = new int[numRows][numCols]; // create matrix
+
+        reader = new BufferedReader(new FileReader(fileName)); // reopen the file
+        int row = 0;
+        while ((line = reader.readLine()) != null) {
+            parts = line.split(" ");
+            for (int col = 0; col < numCols; col++) {
+                matrix[row][col] = Integer.parseInt(parts[col]);
+            }
+            row++;
+        }
+        reader.close(); // close the file again
+        return matrix;
+    }    
     
     //////////////////////////////////////////////////////////////////////////////////////
     //                                                                                  //
